@@ -2,7 +2,7 @@
 
 By [Jiachen T. Wang](https://tianhaowang.netlify.app/) and [Ruoxi Jia](https://ruoxijia.info/). 
 
-This repository provides an implementation of the technical note [Efficient Task-Specific Data Valuation for Nearest Neighbor Algorithms](https://arxiv.org/abs/2304.04258). We propose a refined version of KNN-Shapley that uses **a more reasonable utility function**. 
+This repository provides an implementation of for [A Note on "Efficient Task-Specific Data Valuation for Nearest Neighbor Algorithms"](https://arxiv.org/abs/2304.04258). We propose a refined version of KNN-Shapley that uses **a more reasonable utility function**. 
 
 
 ## Quick Start
