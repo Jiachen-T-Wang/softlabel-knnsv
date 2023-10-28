@@ -13,7 +13,7 @@ This repository provides an implementation of for [A Note on "Efficient Task-Spe
 
 ### KNN-SV-RJ refers to the original KNN-Shapley from [Jia et al. (2019)](https://arxiv.org/pdf/1908.08619.pdf). 
 ```
-python applications_knn.py --task mislabel_detect --dataset creditcard --value_type KNN-SV-JW --n_data 1000 --n_val 200 --flip_ratio 0.1 --K 5
+python applications_knn.py --task mislabel_detect --dataset creditcard --value_type KNN-SV-RJ --n_data 1000 --n_val 200 --flip_ratio 0.1 --K 5
 ```
 
 ### KNN-SV-JW refers to the newly proposed Soft-label KNN-Shapley in this technical note. 
