@@ -74,6 +74,8 @@ for i in range(1):
     sv = knn_shapley_RJ(x_train, y_train, x_val, y_val, K=K)
   elif value_type == 'KNN-SV-JW':
     sv = knn_shapley_JW(x_train, y_train, x_val, y_val, K=K)
+  elif value_type == 'KNN-SV-JW-reg':
+    sv = knn_shapley_JW_reg(x_train, y_train, x_val, y_val, K=K)
   else:
     exit(1)
 

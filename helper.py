@@ -164,3 +164,80 @@ def knn_shapley_JW(x_train_few, y_train_few, x_val_few, y_val_few, K):
 
   return sv
 
+
+
+# x_test, y_test are single data point
+def knn_shapley_JW_reg_single(x_train_few, y_train_few, x_test, y_test, K):
+  N = len(y_train_few)
+  sv = np.zeros(N)
+  rank = rank_neighbor(x_test, x_train_few).astype(int)
+
+  # Compute phi_N
+  y_N = y_train_few[rank[-1]]
+  y_sum = np.sum(y_train_few) - y_N
+  y_square_sum = np.sum(y_train_few**2) - y_N**2
+
+  star_sum = 0
+  for j in range(1, K):
+    term1 = (2*j + 1) / (j**2 * (j + 1)**2)
+    term2 = (j * (j - 1) / ((N - 1) * (N - 2))) * y_sum**2
+    term3 = (j * (N - j - 1) / ((N - 1) * (N - 2))) * y_square_sum
+    term4 = (-2 * y_N / (j + 1)**2 - 2 * y_test / (j * (j + 1))) * (j / (N - 1)) * y_sum
+    term5 = (y_N / (j + 1) - 2 * y_test) * (-y_N / (j + 1))
+    star_sum += term1 * (term2 + term3) + term4 + term5
+
+  sv[rank[-1]] = star_sum/N + (y_test**2 - (y_N-y_test)**2)/N
+
+
+  for k in range(2, N+1):
+    i = N+1-k
+
+    # Compute A1
+    A1_sum_part = np.sum([1 / j**2 for j in range(1, K + 1)])
+    A1 = A1_sum_part + (1 / K**2) * ((N - 1) * min(K, i) / i - K)
+
+    # Compute A2
+    first_sum = np.sum([y_train_few[rank[l-1]] for l in range(1, N+1) if l!=i and l!=i+1])
+    second_sum = np.sum([j / (j + 1)**2 for j in range(1, K)])
+    first_term = (1 / (N - 2)) * first_sum * second_sum
+
+    sum_up_to_i_minus_1 = np.sum([y_train_few[rank[l-1]] for l in range(1, i)])
+    common_term = - ((K - 1) * K) / (2 * (N - 2))
+
+    if i == 1:
+      third_term = 0
+    else:
+      third_term = ((N - 1) * min(K, i) * min(K - 1, i - 1)) / (2 * (i - 1) * i)
+
+    second_term = (
+        (1 / K**2) * (
+            sum_up_to_i_minus_1 * (third_term + common_term)
+            + np.sum([y_train_few[rank[l-1]] * (((N-1)*min(K, l-1) * min(K-1, l-2)) / (2*(l-1)*(l-2)) + common_term) for l in range(i+2, N+1)])
+        )
+    )
+
+    A2 = first_term + second_term
+
+    # Compute A3
+    A3_sum_part = np.sum([1 / j for j in range(1, K + 1)])
+    A3 = A3_sum_part + min(K, i) * (N - 1) / (i * K) - 1
+
+    yi, yip1 = y_train_few[rank[i-1]], y_train_few[rank[i]]
+
+    sv[int(rank[-k])] = sv[int(rank[-(k-1)])] + (yip1-yi)/(N-1) * ( (yi+yip1)*A1 + 2*A2 - 2*y_test*A3 )
+
+
+  return sv
+
+
+def knn_shapley_JW_reg(x_train_few, y_train_few, x_val_few, y_val_few, K):
+
+  N = len(y_train_few)
+  sv = np.zeros(N)
+
+  n_test = len(y_val_few)
+  for i in range(n_test):
+    x_test, y_test = x_val_few[i], y_val_few[i]
+    sv += knn_shapley_JW_reg_single(x_train_few, y_train_few, x_test, y_test, K)
+
+  return sv
